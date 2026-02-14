@@ -13,7 +13,7 @@ def caching_fibonacci() -> Callable[[int], int]:
     def inner(x: int) -> int:
         # використовуємо nonlocal, щоб змінити змінну в замиканні
         nonlocal cachedresult
-        if cachedresult.get(x):
+        if cachedresult.get(x) is not None:
             return cachedresult[x]
 
         result = fibonacci(x)

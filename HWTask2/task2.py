@@ -1,4 +1,5 @@
 from typing import Callable
+from typing import Iterator
 
 
 def is_float(value: str) -> bool:
@@ -15,7 +16,7 @@ def is_float(value: str) -> bool:
         return False
 
 
-def generator_numbers(text: str):
+def generator_numbers(text: str) -> Iterator[float]:
     """
     Генератор, який витягує числа з рядка тексту.
     Args:
