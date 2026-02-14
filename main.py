@@ -1,6 +1,7 @@
 from HWTask1 import Fibonachi
 from HWTask2 import task2
 from HWTask3 import task3
+from HWTask4 import MyPersonalAssistance
 import sys
 import pathlib
 
@@ -22,13 +23,12 @@ if __name__ == "__main__":
 
     print(f"{'=' * 8} task #2 checking with no numbers")
     text = "У цьому тексті немає чисел, лише слова та символи."
-    total_income = task2.sum_profit(text, task2.generator_numbers)  
+    total_income = task2.sum_profit(text, task2.generator_numbers)
     print(f"Загальний дохід: {total_income}")
 
     print(f"{'=' * 8} task #3 checking")
-    
-    args = sys.argv[1:]  # Отримуємо аргументи командного рядка, пропускаючи ім'я скрипта
     try:
+        args = sys.argv[1:]  # Отримуємо аргументи командного рядка, пропускаючи ім'я скрипта
         path = args[0] if args else current_dir / "HWTask3" / "Log.txt"
         filter = args[1].upper().strip() if len(args) > 1 else "ERROR"
     except:
@@ -40,5 +40,8 @@ if __name__ == "__main__":
 
     print(f"Деталі логів для рівня '{filter}'")
     error_logs = task3.filter_logs_by_level(logs, filter)
-    for log in error_logs: 
+    for log in error_logs:
         print(f"{log['datetime']} - {log['comment']}")
+
+    print(f"{'=' * 8} task #4 checking")
+    MyPersonalAssistance.main()

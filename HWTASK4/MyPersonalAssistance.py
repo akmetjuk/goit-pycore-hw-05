@@ -1,7 +1,19 @@
 import re
-from functools import wraps
 
 __commands__ = ["hello", "add", "change", "phone", "help", "all", "close", "exit"]
+
+
+def input_error(func):
+    def inner(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except ValueError:
+            return "Give me name and phone please."
+        except KeyError as e:
+            return f"Key error: {e}"
+        except IndexError:
+            return "Enter the argument for the command"
+    return inner
 
 
 def normalize_phone(phone_number: str) -> str:
@@ -25,12 +37,13 @@ def normalize_phone(phone_number: str) -> str:
     return f"+{ph}"
 
 
+@input_error
 def add_contact(args: list[str], contacts: dict[str, str]) -> str:
     if len(args) != 2:
-        raise ValueError("Invalid number of arguments. Expecting NAME and PHONE.")
+        raise IndexError("Invalid number of arguments. Expecting NAME and PHONE.")
     name, phone = args
     if name in contacts:
-        raise ValueError("Contact already exists.")
+        raise KeyError("Contact already exists.")
     try:
         phone = normalize_phone(phone)
     except ValueError:
@@ -39,12 +52,13 @@ def add_contact(args: list[str], contacts: dict[str, str]) -> str:
     return f"Contact '{name}' added."
 
 
+@input_error
 def change_contact(args: list[str], contacts: dict[str, str]) -> str:
     if len(args) != 2:
         raise ValueError("Invalid number of arguments. Expecting NAME and PHONE.")
     name, phone = args
     if name not in contacts:
-        raise ValueError(f"Contact '{name}' not found.")
+        raise KeyError(f"Contact '{name}' not found.")
     try:
         phone = normalize_phone(phone)
     except ValueError:
@@ -53,9 +67,13 @@ def change_contact(args: list[str], contacts: dict[str, str]) -> str:
     return f"Contact '{name}' updated."
 
 
-def show_phone(name: str, contacts: dict[str, str]) -> str:
+@input_error
+def show_phone(args: list[str], contacts: dict[str, str]) -> str:
+    if len(args) != 1:
+        raise IndexError("Invalid number of arguments. Expecting NAME.")
+    name = args[0]
     if name not in contacts:
-        raise ValueError(f"Contact '{name}' not found.")
+        raise KeyError(f"Contact '{name}' not found.")
     return contacts[name]
 
 
@@ -69,7 +87,7 @@ def parse_input(user_input: str) -> tuple[str, ...]:
     cmd, *args = user_input.split()
     cmd = cmd.strip().lower()
     if cmd not in __commands__:
-        raise ValueError("Invalid command.")
+        raise ValueError(f"Invalid command. Use the following commands: {', '.join(__commands__)}")
     return cmd, *args
 
 
@@ -78,25 +96,28 @@ def main():
     print("Welcome to the assistant bot!")
     while True:
         user_input = input("Enter a command: ")
+
         try:
             command, *args = parse_input(user_input)
-            if command in ["close", "exit"]:
-                print("Good bye!")
-                break
-            elif command == "hello":
-                print("How can I help you?")
-            elif command == "add":
-                print(add_contact(args, contacts))
-            elif command == "change":
-                print(change_contact(args, contacts))
-            elif command == "phone":
-                print(show_phone(args[0], contacts))
-            elif command == "all":
-                print(show_all(contacts))
-            elif command == "help":
-                print(f"Use the following commands: {', '.join(__commands__)}")
         except ValueError as e:
             print(e)
+            continue
+
+        if command in ["close", "exit"]:
+            print("Good bye!")
+            break
+        elif command == "hello":
+            print("How can I help you?")
+        elif command == "add":
+            print(add_contact(args, contacts))
+        elif command == "change":
+            print(change_contact(args, contacts))
+        elif command == "phone":
+            print(show_phone(args, contacts))
+        elif command == "all":
+            print(show_all(contacts))
+        elif command == "help":
+            print(f"Use the following commands: {', '.join(__commands__)}")
 
 
 if __name__ == "__main__":
